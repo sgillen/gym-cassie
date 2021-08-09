@@ -77,7 +77,7 @@ class CassieEnv(gym.Env):
 
         pos_after = np.copy(self.sim.qpos())[0]
 
-        reward = self._get_reward(pos_before, pos_after)
+        reward = self._get_reward(pos_before, pos_after, action)
 
         # same as CassieMimicEnv
         height = self.sim.qpos()[2]
@@ -140,13 +140,18 @@ class CassieEnv(gym.Env):
 
 
     # Essentially the same as Gym Humanoid
-    def _get_reward(self, pos_before, pos_after):
-        alive_bonus = 5.0
+    def _get_reward(self, pos_before, pos_after, action):
+        alive_bonus = 4.0
         lin_vel_cost = 1.25 * (pos_after - pos_before) / self.dt
-        quad_ctrl_cost = 0 # TODO
-        quad_impact_cost = 0 # TODO
-        quad_impact_cost = min(quad_impact_cost, 10)
 
+        #import ipdb; ipdb.set_trace()
+        quad_ctrl_cost = 0.1 * np.square(action).sum()
+
+        # Looks like the foot forces field isn't being populated, we'll just leave it for now
+        #quad_impact_cost = 0.5e-6 * self.sim.get_foot_forces_sum() 
+        #quad_impact_cost = min(quad_impact_cost, 10)
+        quad_impact_cost = 0.0;
+        
         reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus
 
         return reward
@@ -159,7 +164,7 @@ class CassieEnv(gym.Env):
         return np.concatenate([qpos[2:], 
                                qvel[:]])
 
-    def render(self):
+    def render(self, mode=None):
         if self.vis is None:
             self.vis = CassieVis()
 

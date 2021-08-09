@@ -102,6 +102,17 @@ class CassieSim:
 
     def get_foot_forces(self):
         y = state_out_t()
+        # This does nothing as far as I can tell
+        
+    def get_foot_forces_sum(self):
+        y = state_out_t()
+
+        force_sum = 0
+        for force in [y.rightFoot.heelForce, y.rightFoot.toeForce, y.leftFoot.heelForce, y.leftFoot.toeForce]:
+            force_sum += force[0]**2 + force[1]**2 + force[2]**2
+    
+            #        print(force_sum);
+        return force_sum
 
     def __del__(self):
         cassie_sim_free(self.c)
